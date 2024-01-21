@@ -6,7 +6,7 @@ int main(int argc, char **argv) {
     struct AoC aoc = init(argc, argv);
 
     struct Program *program = loadProgram(aoc.input);
-    enum GameMode mode = AUTOMATIC;
+    enum GameMode mode = INSTRUCTIONS;
     int answer = 0;
 
     if (program) {

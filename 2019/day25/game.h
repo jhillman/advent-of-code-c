@@ -516,6 +516,67 @@ void checkForCode(struct Droid *droid, char *observation) {
     }
 }
 
+void checkObservations(struct Droid *droid) {
+    int observationIndex = droid->observations->count - 1;
+    char *observation = droid->observations->list[observationIndex];
+    char item[32];
+
+    if (observation && strcmp(observation, "Command?") == 0) {
+        do {
+            --observationIndex;
+            observation = droid->observations->list[observationIndex];
+        } while (*observation != '=');
+
+        strcpy(droid->room->name, observation);
+
+        clearStringList(droid->room->doors);
+        clearStringList(droid->room->items);
+
+        while (observationIndex < droid->observations->count) {
+            observation = droid->observations->list[observationIndex];
+
+            if (strcmp(observation, "Doors here lead:") == 0) {
+                observation = droid->observations->list[observationIndex + 1];
+
+                while (*observation == '-') {
+                    addString(droid->room->doors, observation + 2);
+                    
+                    observation = droid->observations->list[++observationIndex + 1];
+                }
+            } else if (strcmp(observation, "Items here:") == 0) {
+                observation = droid->observations->list[observationIndex + 1];
+
+                while (*observation == '-') {
+                    addString(droid->room->items, observation + 2);
+                    
+                    observation = droid->observations->list[++observationIndex + 1];
+                }
+            } if (strstr(observation, "You take the")) {
+                strcpy(item, observation + 13);
+                item[strcspn(item, ".")] = '\0';
+
+                droid->state->inventory |= (1L << getId(droid->store, item));
+
+                removeString(droid->room->items, item);
+            }
+
+            ++observationIndex;
+        }
+
+        for (int i = 0; i < droid->room->doors->count; i++) {
+            evaluateInstruction(droid, droid->room->doors->list[i]);
+        }
+
+        for (int i = 0; i < droid->room->items->count; i++) {
+            sprintf(item, "take %s", droid->room->items->list[i]);
+
+            evaluateInstruction(droid, item);
+        }
+    } else {
+        checkForCode(droid, observation);
+    }
+}
+
 int playAutomatically(struct Program *program) {
     struct Droid *droid = (struct Droid *)calloc(1, sizeof(struct Droid));
     int code = 0;
@@ -534,10 +595,6 @@ int playAutomatically(struct Program *program) {
     droid->queue = (struct InstructionStateQueue *)(calloc(1, sizeof(struct InstructionStateQueue)));
     droid->queue->states = (struct InstructionStateList *)(calloc(1, sizeof(struct InstructionStateList)));
 
-    int observationIndex;
-    char *observation;
-    char item[32];
-
     do {
         clearStringList(droid->observations);
         
@@ -546,63 +603,7 @@ int playAutomatically(struct Program *program) {
         runProgram(droid->program);
         resetProgram(droid->program);
 
-        observationIndex = droid->observations->count - 1;
-        observation = droid->observations->list[observationIndex];
-
-        if (observation && strcmp(observation, "Command?") == 0) {
-            do {
-                --observationIndex;
-                observation = droid->observations->list[observationIndex];
-            } while (*observation != '=');
-
-            strcpy(droid->room->name, observation);
-
-            clearStringList(droid->room->doors);
-            clearStringList(droid->room->items);
-
-            while (observationIndex < droid->observations->count) {
-                observation = droid->observations->list[observationIndex];
-
-                if (strcmp(observation, "Doors here lead:") == 0) {
-                    observation = droid->observations->list[observationIndex + 1];
-
-                    while (*observation == '-') {
-                        addString(droid->room->doors, observation + 2);
-                        
-                        observation = droid->observations->list[++observationIndex + 1];
-                    }
-                } else if (strcmp(observation, "Items here:") == 0) {
-                    observation = droid->observations->list[observationIndex + 1];
-
-                    while (*observation == '-') {
-                        addString(droid->room->items, observation + 2);
-                        
-                        observation = droid->observations->list[++observationIndex + 1];
-                    }
-                } if (strstr(observation, "You take the")) {
-                    strcpy(item, observation + 13);
-                    item[strcspn(item, ".")] = '\0';
-
-                    droid->state->inventory |= (1L << getId(droid->store, item));
-
-                    removeString(droid->room->items, item);
-                }
-
-                ++observationIndex;
-            }
-
-            for (int i = 0; i < droid->room->doors->count; i++) {
-                evaluateInstruction(droid, droid->room->doors->list[i]);
-            }
-
-            for (int i = 0; i < droid->room->items->count; i++) {
-                sprintf(item, "take %s", droid->room->items->list[i]);
-
-                evaluateInstruction(droid, item);
-            }
-        } else {
-            checkForCode(droid, observation);
-        }
+        checkObservations(droid);
 
         if (droid->queue->size > 0) {
             droid->state = dequeue(droid->queue);
