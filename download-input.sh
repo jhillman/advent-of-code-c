@@ -1,8 +1,8 @@
 #!/bin/bash
 
 if [ ! -f $(dirname "$0")/session.txt ]; then
-	echo "session.txt does not exist"
-	exit
+    echo "session.txt does not exist"
+    exit
 fi
 
 session=$(cat $(dirname "$0")/session.txt) 
@@ -35,13 +35,13 @@ for year in ${years[@]}; do
         pushd . > /dev/null
         cd $directory
 
-		if [ $(find . -maxdepth 1 -name "input*.txt" | wc -l) == 0 ]; then
+        if [ $(find . -maxdepth 1 -name "input*.txt" | wc -l) == 0 ]; then
             day=`grep -m 1 -o '[0-9]\+' part1.c | head -1`
-			echo "downloading input for $year day $day..."
+            echo "downloading input for $year day $day..."
     
             curl -s https://adventofcode.com/$year/day/$day/input --cookie "session=$session" >> input.txt
             truncate -s -1 input.txt
-    	fi
+        fi
 
         popd > /dev/null
     done

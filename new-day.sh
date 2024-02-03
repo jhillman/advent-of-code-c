@@ -13,13 +13,7 @@ if [[ $day == 0 ]]; then
         let endLength="${#lastDir}-3"
         let endLength="-$endLength"
 
-        let lastDay=${lastDir:$endLength}
-
-        if [[ $lastDay == 0[1-9] ]]; then
-            finalEndLength=endLength+1
-        
-            lastDay=${lastDir:$finalEndLength}
-        fi
+        let lastDay="10#${lastDir:$endLength}"
 
         day=$((lastDay+1))
     else
