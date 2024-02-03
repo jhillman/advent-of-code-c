@@ -28,6 +28,26 @@ struct Tile {
     bool flagged;
 };
 
+struct Tiles {
+    int capacity;
+    int count;
+    struct Tile *data;
+};
+
+struct Tile *createTile(struct Tiles *tiles) {
+    if (tiles->count == tiles->capacity) {
+        tiles->capacity += 1000;
+        tiles->data = (struct Tile *)realloc(tiles->data, tiles->capacity * sizeof(struct Tile));
+    }
+
+    return &tiles->data[tiles->count++];
+}
+
+void freeTiles(struct Tiles *tiles) {
+    free(tiles->data);
+    free(tiles);
+}
+
 void connectSurroundingTiles(struct Tile *tile) {
     if (tile) {
         if (tile->east && tile->northeast) {
@@ -62,44 +82,44 @@ void connectSurroundingTiles(struct Tile *tile) {
     }
 }
 
-void initializeTile(struct Tile *tile) {
+void initializeTile(struct Tiles *tiles, struct Tile *tile) {
     if (!tile->east) {
-        tile->east = (struct Tile *) calloc(1, sizeof(struct Tile));
+        tile->east = createTile(tiles);
         tile->east->west = tile;
     } else {
         connectSurroundingTiles(tile->east);
     }
 
     if (!tile->southeast) {
-        tile->southeast = (struct Tile *) calloc(1, sizeof(struct Tile));
+        tile->southeast = createTile(tiles);
         tile->southeast->northwest = tile;
     } else {
         connectSurroundingTiles(tile->southeast);
     }
 
     if (!tile->southwest) {
-        tile->southwest = (struct Tile *) calloc(1, sizeof(struct Tile));
+        tile->southwest = createTile(tiles);
         tile->southwest->northeast = tile;
     } else {
         connectSurroundingTiles(tile->southwest);
     }
 
     if (!tile->west) {
-        tile->west = (struct Tile *) calloc(1, sizeof(struct Tile));
+        tile->west = createTile(tiles);
         tile->west->east = tile;
     } else {
         connectSurroundingTiles(tile->west);
     }
 
     if (!tile->northwest) {
-        tile->northwest = (struct Tile *) calloc(1, sizeof(struct Tile));
+        tile->northwest = createTile(tiles);
         tile->northwest->southeast = tile;
     } else {
         connectSurroundingTiles(tile->northwest);
     }
 
     if (!tile->northeast) {
-        tile->northeast = (struct Tile *) calloc(1, sizeof(struct Tile));
+        tile->northeast = createTile(tiles);
         tile->northeast->southwest = tile;
     } else {
         connectSurroundingTiles(tile->northeast);
@@ -108,38 +128,38 @@ void initializeTile(struct Tile *tile) {
     connectSurroundingTiles(tile);
 }
 
-void flipTile(struct Tile *center, enum Direction *directions, int directionCount) {
+void flipTile(struct Tiles *tiles, struct Tile *center, enum Direction *directions, int directionCount) {
     struct Tile *current = center;
 
     for (int i = 0; i < directionCount; i++) {
         switch (directions[i]) {
             case EAST:
-                initializeTile(current->east);
+                initializeTile(tiles, current->east);
                 current = current->east;
                 break;
             case SOUTHEAST:
-                initializeTile(current->southeast);
+                initializeTile(tiles, current->southeast);
                 current = current->southeast;
                 break;
             case SOUTHWEST:
-                initializeTile(current->southwest);
+                initializeTile(tiles, current->southwest);
                 current = current->southwest;
                 break;
             case WEST:
-                initializeTile(current->west);
+                initializeTile(tiles, current->west);
                 current = current->west;
                 break;
             case NORTHEAST:
-                initializeTile(current->northwest);
+                initializeTile(tiles, current->northwest);
                 current = current->northeast;
                 break;
             case NORTHWEST:
-                initializeTile(current->northeast);
+                initializeTile(tiles, current->northeast);
                 current = current->northwest;
                 break;
         }
 
-        initializeTile(current);
+        initializeTile(tiles, current);
     }
 
     if (current->color == WHITE) {
@@ -189,32 +209,31 @@ int countAllBlackTiles(struct Tile *tile) {
     return count;
 }
 
-void freeTile(struct Tile *tile) {
-    if (tile && !tile->flagged) {
-        tile->flagged = true;
+struct TileData {
+    struct Tiles *tiles;
+    struct Tile *center;
+};
 
-        freeTile(tile->east);
-        freeTile(tile->southeast);
-        freeTile(tile->southwest);
-        freeTile(tile->west);
-        freeTile(tile->northeast);
-        freeTile(tile->northwest);
-
-        free(tile);
-    }
+void freeTileData(struct TileData *data) {
+    freeTiles(data->tiles);
+    free(data);
 }
 
-struct Tile *getTiles(char *input) {
+struct TileData *getTileData(char *input) {
     FILE *inputFile = fopen(input, "r");
+    struct TileData *data = NULL;
 
     if (inputFile) {
-        struct Tile *center = (struct Tile *) calloc(1, sizeof(struct Tile));
         char *line = (char *) malloc(64 * sizeof(char));
         size_t length;
         char *charPtr;
         int blackTiles = 0;
+        
+        data = (struct TileData *) calloc(1, sizeof(struct TileData));
+        data->tiles = (struct Tiles *) calloc(1, sizeof(struct Tiles));
+        data->center = createTile(data->tiles);
 
-        initializeTile(center);
+        initializeTile(data->tiles, data->center);
 
         while (getline(&line, &length, inputFile) != -1) {
             charPtr = line;
@@ -258,16 +277,14 @@ struct Tile *getTiles(char *input) {
                 }
             }
 
-            flipTile(center, directions, directionCount);
+            flipTile(data->tiles, data->center, directions, directionCount);
 
             free(directions);
         }
 
         fclose(inputFile);
         free(line);
-
-        return center;
     }
 
-    return NULL;
+    return data;
 }

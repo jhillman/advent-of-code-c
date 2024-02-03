@@ -243,17 +243,17 @@ void freeGrid(struct Grid *grid) {
 int main(int argc, char **argv) {
     struct AoC aoc = init(argc, argv);
 
-    struct Tile *center = getTiles(aoc.input);
+    struct TileData *data = getTileData(aoc.input);
     int answer = 0;
 
-    if (center) {
+    if (data) {
         int minX = 0;
         int maxX = 0;
         int minY = 0;
         int maxY = 0;
 
-        getTileBounds(center, 0, 0, &minX, &maxX, &minY, &maxY);
-        clearFlags(center);
+        getTileBounds(data->center, 0, 0, &minX, &maxX, &minY, &maxY);
+        clearFlags(data->center);
 
         struct Grid *current = (struct Grid *) calloc(1, sizeof(struct Grid));
         current->width = maxX - minX + 1;
@@ -265,9 +265,9 @@ int main(int argc, char **argv) {
             current->tiles[y] = (enum Color *) calloc(current->width, sizeof(enum Color));
         }
 
-        setBlackTiles(center, current->tiles, abs(minX), abs(minY));
+        setBlackTiles(data->center, current->tiles, abs(minX), abs(minY));
 
-        freeTile(center);
+        freeTileData(data);
 
         struct Grid *reference = NULL;
 

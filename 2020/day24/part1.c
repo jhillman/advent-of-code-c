@@ -6,13 +6,13 @@
 int main(int argc, char **argv) {
     struct AoC aoc = init(argc, argv);
 
-    struct Tile *center = getTiles(aoc.input);
+    struct TileData *data = getTileData(aoc.input);
     int answer = 0;
 
-    if (center) {
-        answer = countAllBlackTiles(center);
+    if (data) {
+        answer = countAllBlackTiles(data->center);
 
-        freeTile(center);
+        freeTileData(data);
     }
 
     print(aoc, INT, &answer);

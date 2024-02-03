@@ -26,7 +26,7 @@ struct Computer *getComputer(char *input) {
     FILE *inputFile = fopen(input, "r");
 
     if (inputFile) {
-        struct Computer *computer = (struct Computer *) calloc(1, sizeof(struct Computer *));
+        struct Computer *computer = (struct Computer *) calloc(1, sizeof(struct Computer));
 
         computer->instructionCount = 0;
         char ch;
@@ -50,6 +50,7 @@ struct Computer *getComputer(char *input) {
                 computer->instructions[instructionIndex].type = MASK;
 
                 sscanf(line, "mask = %s", computer->instructions[instructionIndex].mask);
+                computer->instructions[instructionIndex].mask[MASK_LENGTH] = '\0';
             } else if (strstr(line, "mem")) {
                 computer->instructions[instructionIndex].type = MEMORY;
 
