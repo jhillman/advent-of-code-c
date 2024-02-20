@@ -7,7 +7,11 @@ if [ "$1" != "" ]; then
 fi
 
 if [[ $day == 0 ]]; then
-    lastDir=`ls -d day* | tail -n 1`
+    lastDir=""
+
+    if ls -d day* 1> /dev/null 2>&1; then
+        lastDir=`ls -d day* | tail -n 1`
+    fi
 
     if [[ $lastDir != "" ]]; then
         let endLength="${#lastDir}-3"
