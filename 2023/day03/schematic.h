@@ -29,7 +29,7 @@ struct Schematic *getSchematic(char *input) {
     if (inputFile) {
         char ch;
 
-        schematic = (struct Schematic *)calloc(1, sizeof(struct Schematic *));
+        schematic = (struct Schematic *)calloc(1, sizeof(struct Schematic));
 
         ch = fgetc(inputFile);
 

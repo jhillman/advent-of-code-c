@@ -26,7 +26,7 @@ struct Cards *getCards(char *input) {
         bool checkingNumbers;
         int cardIndex;
 
-        cards = (struct Cards *)calloc(1, sizeof(struct Cards *));
+        cards = (struct Cards *)calloc(1, sizeof(struct Cards));
 
         while (!feof(inputFile)) {
             c = fgetc(inputFile);

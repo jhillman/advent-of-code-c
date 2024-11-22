@@ -432,7 +432,7 @@ void output(void *context, long output) {
 
 int playTextAdventure(struct Program *program) {
     int data;
-    char response[32];
+    char response[33];
     char *character;
 
     printf("Enter 'quit' to stop.\n");
