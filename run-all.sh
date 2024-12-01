@@ -43,7 +43,7 @@ widestAnswer=""
 for year in ${years[@]}; do
     if [[ ${currentDirectory:${#currentDirectory}-4} != $year ]]; then
         pushd . > /dev/null
-        cd $year
+        cd $year > /dev/null
     fi
 
     for answer in $(find ./ -name "part*.c" | xargs grep -m 1 -o '= [^ *]*' | cut -d " " -f2); do 
@@ -64,7 +64,7 @@ allYearsCorrect="true"
 totalTime=0.0
 
 for year in ${years[@]}; do
-    if [[ ${currentDirectory:${#currentDirectory}-4} != $year ]]; then
+    if ((${#years[@]} > 1)) && [[ ${currentDirectory:${#currentDirectory}-4} != $year ]]; then
         pushd . > /dev/null
         cd $year
     fi
