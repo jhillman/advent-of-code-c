@@ -1,7 +1,7 @@
 /* Day 10, part 1 = 1935 */
 
 #include "../../aoc.h"
-#include "hash.h"
+#include "../knot.h"
 
 int main(int argc, char **argv) {
     struct AoC aoc = init(argc, argv);
@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
     int answer = 0;
 
     if (inputFile) {
-        struct Numbers *numbers = getNumbers();
+        struct Numbers *numbers = getNumbers(256);
         int length;
         char c;
 
