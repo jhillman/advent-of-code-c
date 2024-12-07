@@ -56,15 +56,12 @@ long calibration(char *input, bool concatenate) {
 
     if (inputFile) {
         char line[64];
-        long test;
         char *value;
         bool possible;
 
         while (!feof(inputFile) && fgets(line, sizeof(line), inputFile)) {
             struct Equation *equation = (struct Equation *)calloc(1, sizeof(struct Equation));
-            test = atol(strtok(line, ": "));
-
-            equation->test = test;
+            equation->test = atol(strtok(line, ": "));
 
             value = strtok(NULL, ": ");
 
@@ -76,11 +73,12 @@ long calibration(char *input, bool concatenate) {
             possible = false;
 
             evaluate(equation, *equation->values, 1, concatenate, &possible);
-            freeEquation(equation);
 
             if (possible) {
-                result += test;
+                result += equation->test;
             }
+
+            freeEquation(equation);
         }
 
         fclose(inputFile);
