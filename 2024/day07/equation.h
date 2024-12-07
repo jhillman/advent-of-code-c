@@ -22,32 +22,37 @@ void freeEquation(struct Equation *equation) {
     free(equation);
 }
 
-void evaluate(struct Equation *equation, long value, int index, bool concatenate, bool *possible) {
+bool evaluate(struct Equation *equation, long value, int index, bool concatenate) {
+    bool possible = false;
+
     if (index == equation->length) {
         if (value == equation->test) {
-           *possible = true;
+           possible = true;
         }
     } else {
         long next = equation->values[index++];
 
-        if (value > equation->test || next > equation->test) {
-            return;
-        }
+        if (value < equation->test && next < equation->test) {
+            possible = evaluate(equation, value + next, index, concatenate);
 
-        evaluate(equation, value + next, index, concatenate, possible);
-        evaluate(equation, value * next, index, concatenate, possible);
-
-        if (concatenate) {
-            long concat = next;
-
-            while (concat > 0) {
-                value *= 10;
-                concat /= 10;
+            if (!possible) {
+                possible = evaluate(equation, value * next, index, concatenate);
             }
 
-            evaluate(equation, value + next, index, concatenate, possible);
+            if (!possible && concatenate) {
+                long concat = next;
+
+                while (concat > 0) {
+                    value *= 10;
+                    concat /= 10;
+                }
+
+                possible = evaluate(equation, value + next, index, concatenate);
+            }
         }
     }
+
+    return possible;
 }
 
 long calibration(char *input, bool concatenate) {
@@ -57,7 +62,6 @@ long calibration(char *input, bool concatenate) {
     if (inputFile) {
         char line[64];
         char *value;
-        bool possible;
 
         while (!feof(inputFile) && fgets(line, sizeof(line), inputFile)) {
             struct Equation *equation = (struct Equation *)calloc(1, sizeof(struct Equation));
@@ -70,11 +74,9 @@ long calibration(char *input, bool concatenate) {
                 value = strtok(NULL, ": ");
             }
 
-            possible = false;
-
-            evaluate(equation, *equation->values, 1, concatenate, &possible);
-
-            if (possible) {
+            if (evaluate(equation, *equation->values, 1, false)) {
+                result += equation->test;
+            } else if (concatenate && evaluate(equation, *equation->values, 1, true)) {
                 result += equation->test;
             }
 
