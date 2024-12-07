@@ -32,22 +32,22 @@ bool evaluate(struct Equation *equation, long value, int index, bool concatenate
     } else {
         long next = equation->values[index++];
 
-        if (value < equation->test && next < equation->test) {
+        if (!(value > equation->test || next > equation->test)) {
             possible = evaluate(equation, value + next, index, concatenate);
 
             if (!possible) {
                 possible = evaluate(equation, value * next, index, concatenate);
-            }
 
-            if (!possible && concatenate) {
-                long concat = next;
+                if (!possible && concatenate) {
+                    long concat = next;
 
-                while (concat > 0) {
-                    value *= 10;
-                    concat /= 10;
+                    while (concat > 0) {
+                        value *= 10;
+                        concat /= 10;
+                    }
+
+                    possible = evaluate(equation, value + next, index, concatenate);
                 }
-
-                possible = evaluate(equation, value + next, index, concatenate);
             }
         }
     }
