@@ -35,10 +35,7 @@ void evaluate(struct Equation *equation, long value, int index, bool concatenate
         }
 
         evaluate(equation, value + next, index, concatenate, possible);
-
-        if (equation->test % value == 0) {
-            evaluate(equation, value * next, index, concatenate, possible);
-        }
+        evaluate(equation, value * next, index, concatenate, possible);
 
         if (concatenate) {
             long concat = next;
