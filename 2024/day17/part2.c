@@ -14,14 +14,18 @@ int main(int argc, char **argv) {
 
     if (computer) {
         long a = 0;
+        long additional;
         long out = 0;
         int programDigit = computer->programLength - 1;
         struct Output output = { NULL, &out, evaluate };
 
         while (programDigit >= 0) {
-            for (int i = 0; i < 9; i++) {
+            a *= 8;
+            additional = 0;
+
+            while (true) {
                 computer->instruction = 0;
-                computer->a = a + i;
+                computer->a = a + additional;
                 computer->b = 0;
                 computer->c = 0;
                 *output.integer = 0;
@@ -29,14 +33,13 @@ int main(int argc, char **argv) {
                 run(computer, &output);
 
                 if (*output.integer == computer->program[programDigit]) {
-                    a += i;
+                    a += additional;
         
-                    if (--programDigit >= 0) {
-                        a *= 8;
-                    }
-                    
+                    --programDigit;
                     break;
                 }
+
+                ++additional;
             }
         }
 
