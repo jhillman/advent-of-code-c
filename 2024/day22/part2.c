@@ -6,7 +6,7 @@
 int main(int argc, char **argv) {
     struct AoC aoc = init(argc, argv);
     struct Secrets *secrets = getSecrets(aoc.input);
-    long answer = 0;
+    int answer = 0;
 
     if (secrets) {
         struct SequencePrice ****sequencePrices = getSequencePrices();
@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
         answer = maximumPrice;
     }
 
-    print(aoc, LONG, &answer);
+    print(aoc, INT, &answer);
 
     return 0;
 }
