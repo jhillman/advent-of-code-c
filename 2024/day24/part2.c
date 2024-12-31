@@ -58,7 +58,7 @@ void validateGate(struct Gates *gates, struct Gate *gate, enum GateType type, st
     struct Gate *input1 = findGate(gates, gate->input1->name, 0, gates->count);
     struct Gate *input2 = findGate(gates, gate->input2->name, 0, gates->count);
 
-    if (input1 == NULL && input2 == NULL) {
+    if (input1 == NULL || input2 == NULL) {
         return;
     }
 
@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
 
         for (int i = 0; i < wrongWires->count; i++) {
             sprintf(answer + strlen(answer), "%s%s", wrongWires->data[i]->name, 
-                            i < wrongWires->count - 1 ? "," : "");
+                i < wrongWires->count - 1 ? "," : "");
         }
 
         freeWires(wrongWires, false);
