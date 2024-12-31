@@ -4,7 +4,7 @@
 #include "maze.h"
 
 int main(int argc, char **argv) {
-struct AoC aoc = init(argc, argv);
+    struct AoC aoc = init(argc, argv);
     struct Maze *maze = getMaze(aoc.input);
     int answer = 0;
 
