@@ -4,7 +4,7 @@
 #include "invalid.h"
 
 int firstSequenceLength(int digits) {
-    return (int)ceil((float)digits / 2.0f);
+    return (digits + 1) / 2;
 }
 
 int main(int argc, char **argv) {

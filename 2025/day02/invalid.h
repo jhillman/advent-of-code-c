@@ -1,8 +1,24 @@
-#include <math.h>
 #include <stdbool.h>
 
 int digitCount(long number) {
-    return (int)floor(log10((double)number)) + 1;
+    int count = 0;
+
+    while (number > 0) {
+      number /= 10;
+      count++;
+    }
+
+    return count;
+}
+
+long pow10(int number) {
+    long result = 1;
+
+    for (int i = 0; i < number; i++) {
+        result *= 10;
+    }
+
+    return result;
 }
 
 int firstSequenceLength(int digits);
@@ -18,26 +34,32 @@ long invalidSum(char *input) {
 
         while (fscanf(inputFile, "%ld-%ld%c", &first, &last, &character) >= 2) {
             long id = first;
+            int digits = digitCount(id);
+            bool digitCountChanges = digitCount(last) != digits;
+            long nextPow10 = 0;
 
             while (id <= last) {
-                int digits = digitCount(id);
+                if (digitCountChanges && id > nextPow10) {
+                    digits = digitCount(id);
+                    nextPow10 = pow10(digits);
+                }
+
                 int maxSequenceLength = digits / 2;
                 int sequenceLength = firstSequenceLength(digits);
                 bool sequenceRepeated = false;
 
                 while (!sequenceRepeated && sequenceLength <= maxSequenceLength) {
-                    long modulo = pow(10, sequenceLength);
-
-                    long segment = id % modulo;
-                    long remaining = id / modulo;
-                    long nextSegment = remaining % modulo;
+                    long segmentSize = pow10(sequenceLength);
+                    long segment = id % segmentSize;
+                    long remaining = id / segmentSize;
+                    long nextSegment = remaining % segmentSize;
 
                     if (segment == nextSegment) {
                         sequenceRepeated = true;
 
-                        while (sequenceRepeated && remaining != remaining % modulo) {
-                            remaining /= modulo;
-                            nextSegment = remaining % modulo;
+                        while (sequenceRepeated && remaining != remaining % segmentSize) {
+                            remaining /= segmentSize;
+                            nextSegment = remaining % segmentSize;
 
                             sequenceRepeated = segment == nextSegment;
                         } 
