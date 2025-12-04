@@ -9,14 +9,12 @@ int main(int argc, char **argv) {
     int answer = 0;
 
     if (grid) {
+        int removed;
         int totalRemoved = 0;
-        int removed = removeRolls(grid, false);
 
-        while (removed) {
-            totalRemoved += removed;
-
-            removed = removeRolls(grid, false);
-        }
+        do {
+            totalRemoved += (removed = removeRolls(grid, false));
+        } while (removed);
 
         freeGrid(grid);
 
